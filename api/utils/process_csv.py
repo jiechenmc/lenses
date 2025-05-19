@@ -24,7 +24,7 @@ def process_crime_rates():
 def insert_community_area(data: list):
    # the_geom,AREA_NUMBE,COMMUNITY,AREA_NUM_1,SHAPE_AREA,SHAPE_LEN
    community_area = CommunityAreas(area_id=int(data[1]), name=data[2])
-   with get_session as session:
+   with get_session() as session:
       session.add(community_area)
       session.commit()
       session.refresh(community_area)

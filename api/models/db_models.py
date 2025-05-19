@@ -5,7 +5,7 @@ from datetime import datetime
 
 class CommunityAreas(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    area_id: Optional[int] = Field(default=None, index=True)
+    area_id: Optional[int] = Field(default=None, index=True, unique=True)
     name: str = Field(index=True)
     # Back-reference to related crime records
     crimes: List["CrimeRates"] = Relationship(back_populates="community")
