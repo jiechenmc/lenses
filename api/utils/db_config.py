@@ -1,15 +1,14 @@
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlmodel import SQLModel, create_engine, Session
+from ..models.db_models import * 
 
+DATABASE_URL = "postgresql://username:password@localhost:5432/mydatabase"
 
-
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
-
+# engine = create_engine(DATABASE_URL, echo=True)
 
 def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+    # SQLModel.metadata.create_all(engine)
+    pass
 
-# Code below omitted 👇
+def get_session():
+    # return Session(engine)
+    pass
