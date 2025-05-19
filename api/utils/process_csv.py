@@ -17,11 +17,9 @@ def process_crime_rates():
    with open("api/utils/data/crime_rates.csv", "r") as file: 
       reader = csv.reader(file)
       print(next(reader))
-      count = 0
       for row in reader: 
          insert_crime(row)
-         # break
-      print(count)
+         break
 
 def insert_community_area(data: list):
    # the_geom,AREA_NUMBE,COMMUNITY,AREA_NUM_1,SHAPE_AREA,SHAPE_LEN
@@ -67,4 +65,4 @@ def insert_crime(data: list):
    pass
 # process_community_area()
 # create_db_and_tables()
-process_crime_rates()
+# process_crime_rates()
