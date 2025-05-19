@@ -1,0 +1,23 @@
+['ID', 'Case Number', 'Date', 'Block', 'IUCR', 'Primary Type', 'Description', 'Location Description', 'Arrest', 'Domestic', 'Beat', 'District', 'Ward', 'Community Area', 'FBI Code', 'X Coordinate', 'Y Coordinate', 'Year', 'Updated On', 'Latitude', 'Longitude', 'Location']
+13831071, type: <class 'str'>
+JJ249032, type: <class 'str'>
+05/10/2025 12:00:00 AM, type: <class 'str'>
+025XX W 24TH ST, type: <class 'str'>
+0560, type: <class 'str'>
+ASSAULT, type: <class 'str'>
+SIMPLE, type: <class 'str'>
+PARKING LOT / GARAGE (NON RESIDENTIAL), type: <class 'str'>
+false, type: <class 'str'>
+false, type: <class 'str'>
+1034, type: <class 'str'>
+010, type: <class 'str'>
+25, type: <class 'str'>
+31, type: <class 'str'>
+08A, type: <class 'str'>
+1159791, type: <class 'str'>
+1887988, type: <class 'str'>
+2025, type: <class 'str'>
+05/17/2025 03:42:19 PM, type: <class 'str'>
+41.84835177, type: <class 'str'>
+-87.689046399, type: <class 'str'>
+(41.84835177, -87.689046399), type: <class 'str'>
