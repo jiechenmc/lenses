@@ -5,6 +5,7 @@ from datetime import datetime
 
 class CommunityAreas(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    area_id: Optional[int] = Field(default=None, index=True)
     name: str = Field(index=True)
     # Back-reference to related crime records
     crimes: List["CrimeRates"] = Relationship(back_populates="community")
@@ -14,6 +15,7 @@ class CrimeRates(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     # Core details
+    crime_id: Optional[int] = Field(default=None, index=True)
     case_number: Optional[str] = Field(default=None, index=True)
     date: Optional[datetime] = Field(default=None, index=True)
     block: Optional[str] = Field(default=None)
@@ -31,6 +33,7 @@ class CrimeRates(SQLModel, table=True):
     # Coordinates
     x_coordinate: Optional[float] = Field(default=None)
     y_coordinate: Optional[float] = Field(default=None)
+    year: Optional[int] = Field(default=None)
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
 
@@ -43,5 +46,5 @@ class CrimeRates(SQLModel, table=True):
     updated_on: Optional[datetime] = Field(default=None)
 
     # Community Area (foreign key)
-    community_area: Optional[int] = Field(default=None, foreign_key="communityareas.id")
+    community_area: Optional[int] = Field(default=None, foreign_key="communityareas.area_id")
     community: Optional["CommunityAreas"] = Relationship(back_populates="crimes")
