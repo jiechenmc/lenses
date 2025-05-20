@@ -1,8 +1,17 @@
 import csv
-from ..utils.db_config import create_db_and_tables, get_session
+from ..utils.db_config import create_db_and_tables, get_session, get_db_url
 from ..models.db_models import *
 from ..utils.string_utils import *
+import tempfile
+import psycopg2
 import os
+import time
+
+def get_row_count(conn, table_name):
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT COUNT(*) FROM {table_name};")
+        return cur.fetchone()[0]
+    
 # Processes the community area CSV and crime rates CSV
 def process_community_area(): 
    print(os.getcwd())
@@ -11,15 +20,77 @@ def process_community_area():
       next(reader)
       for row in reader: 
          insert_community_area(row)
-         break
+         # break
 
 def process_crime_rates():
-   with open("api/utils/data/crime_rates.csv", "r") as file: 
-      reader = csv.reader(file)
-      print(next(reader))
-      for row in reader: 
-         insert_crime(row)
-         break
+   with tempfile.NamedTemporaryFile(mode="w", delete=False, newline='') as tmp_file:
+      writer=csv.writer(tmp_file)
+      with open("api/utils/data/crime_rates.csv", "r") as file: 
+         reader = csv.reader(file)
+         header=next(reader)
+         # Write a new header that matches table columns
+         writer.writerow([
+             "crime_id", "case_number", "date", "block", "iucr", "primary_type",
+             "description", "location_description", "arrest", "domestic",
+             "beat", "district", "ward", "community_area", "fbi_code",
+             "x_coordinate", "y_coordinate", "year", "updated_on",
+             "latitude", "longitude", "location"
+         ])
+         for row in reader:
+            cleaned_row = [
+                parse_int(row[0]),
+                row[1] or None,
+                parse_datetime(row[2]),
+                row[3] or None,
+                row[4] or None,
+                row[5] or None,
+                row[6] or None,
+                row[7] or None,
+                parse_bool(row[8]),
+                parse_bool(row[9]),
+                parse_int(row[10]),
+                parse_int(row[11]),
+                parse_int(row[12]),
+                parse_int(row[13]),
+                row[14] or None,
+                parse_float(row[15]),
+                parse_float(row[16]),
+                parse_int(row[17]),
+                parse_datetime(row[18]),
+                parse_float(row[19]),
+                parse_float(row[20]),
+                row[21] or None
+            ]
+            writer.writerow(cleaned_row)
+            # print(cleaned_row)
+            # break
+   db_url = get_db_url()
+   conn = psycopg2.connect(db_url)
+   cur = conn.cursor()
+   start = time.perf_counter()
+   with open(tmp_file.name, 'r') as f: 
+      cur.copy_expert(
+         f"""COPY crimerates (
+    crime_id, case_number, date, block, iucr, primary_type,
+    description, location_description, arrest, domestic,
+    beat, district, ward, community_area, fbi_code,
+    x_coordinate, y_coordinate, year, updated_on,
+    latitude, longitude, location
+) FROM STDIN WITH CSV HEADER;""",
+         f
+      )
+   conn.commit()
+   end = time.perf_counter()
+
+   after_count = get_row_count(conn, "crimerates")
+   print(f'INSERTED {after_count} into crimerates in {(end-start):.2f} seconds.')
+   cur.close()
+   conn.close()
+
+
+         # for row in reader: 
+         #    insert_crime(row)
+            # break
 
 def insert_community_area(data: list):
    # the_geom,AREA_NUMBE,COMMUNITY,AREA_NUM_1,SHAPE_AREA,SHAPE_LEN
@@ -63,6 +134,6 @@ def insert_crime(data: list):
        session.refresh(crime)
        print(f"Inserted Crime ID: {crime.id}")
    pass
-# process_community_area()
-# create_db_and_tables()
-# process_crime_rates()
+create_db_and_tables()
+process_community_area()
+process_crime_rates()
