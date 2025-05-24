@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+api/env
+api/.env
+api/__pycache__
+api/*/__pycache__
+
+api/utils/data/*
