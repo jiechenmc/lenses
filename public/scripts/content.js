@@ -1,3 +1,12 @@
+const fetchCommuteDuration = (srcAddr) => {
+  const destAddr = "600 W Chicago Ave #600, Chicago, IL 60654";
+  return Math.floor(Math.random() * 100) + 1;
+};
+
+const fetchCrimeScore = (srcAddr) => {
+  return Math.floor(Math.random() * 100) + 1;
+};
+
 const createBadge = (type, data) => {
   const crimeThresh = { low: 0, medium: 10, high: 30 };
   const commuteThresh = { low: 0, medium: 30, high: 60 };
@@ -29,8 +38,8 @@ const addBadgeToAddresses = () => {
 
   for (const address of addresses) {
     const fakeData = {
-      crime_rate: Math.floor(Math.random() * 100) + 1,
-      commute: Math.floor(Math.random() * 100) + 1,
+      crime_rate: fetchCrimeScore(address),
+      commute: fetchCommuteDuration(address),
       schools: [],
       convenient_stores: [],
     };
