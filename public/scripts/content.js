@@ -8,13 +8,14 @@ const createBadge = (type, data) => {
     case "crime":
       element.innerText = `👮 ${data}`;
       if (data > crimeThresh["high"]) element.className = "badge error";
-      else if (data > crimeThresh["high"]) element.className = "badge warning";
+      else if (data > crimeThresh["medium"])
+        element.className = "badge warning";
       else element.className = "badge success";
       break;
     case "commute":
       element.innerText = `🚗 ${data}`;
       if (data > commuteThresh["high"]) element.className = "badge error";
-      else if (data > commuteThresh["high"])
+      else if (data > commuteThresh["medium"])
         element.className = "badge warning";
       else element.className = "badge success";
       break;
