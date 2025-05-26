@@ -16,11 +16,18 @@ def get_row_count(conn, table_name):
 # Processes the community area CSV and crime rates CSV
 def process_community_area(): 
    print(os.getcwd())
-   # with open("api/utils/data/community_areas.csv", "r") as file: 
-   #    reader = csv.reader(file)
-   #    next(reader)
-   #    for row in reader: 
-   #       insert_community_area(row)
+   response = requests.get("https://data.cityofchicago.org/resource/t68z-cikk.json")
+   if response.status_code==200: 
+      data = response.json()
+      total_pop_data = {}
+      for point in data:
+         community_area = point['community_area']
+         total_pop_data[community_area] = {k: v for k, v in point.items() if k != "community_area"}
+   with open("api/utils/data/community_areas.csv", "r") as file: 
+      reader = csv.reader(file)
+      next(reader)
+      for row in reader: 
+         insert_community_area(row, total_pop_data)
 
 def process_crime_rates():
    with tempfile.NamedTemporaryFile(mode="w", delete=False, newline='') as tmp_file:
@@ -92,9 +99,9 @@ def process_crime_rates():
          #    insert_crime(row)
             # break
 
-def insert_community_area(data: list):
+def insert_community_area(data: list, total_pop_data: dict):
    # the_geom,AREA_NUMBE,COMMUNITY,AREA_NUM_1,SHAPE_AREA,SHAPE_LEN
-   community_area = CommunityAreas(area_id=int(data[1]), name=data[2])
+   community_area = CommunityAreas(area_id=int(data[1]), name=data[2], total_population=int(float(total_pop_data[data[2]]['total_population'])))
    with get_session() as session:
       session.add(community_area)
       session.commit()
