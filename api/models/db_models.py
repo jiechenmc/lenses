@@ -7,6 +7,7 @@ class CommunityAreas(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     area_id: Optional[int] = Field(default=None, index=True, unique=True)
     name: str = Field(index=True)
+    total_population: Optional[int] = Field(default=None)
     # Back-reference to related crime records
     crimes: List["CrimeRates"] = Relationship(back_populates="community")
 

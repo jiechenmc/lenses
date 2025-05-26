@@ -6,6 +6,7 @@ import tempfile
 import psycopg2
 import os
 import time
+import requests
 
 def get_row_count(conn, table_name):
     with conn.cursor() as cur:
@@ -15,12 +16,11 @@ def get_row_count(conn, table_name):
 # Processes the community area CSV and crime rates CSV
 def process_community_area(): 
    print(os.getcwd())
-   with open("api/utils/data/community_areas.csv", "r") as file: 
-      reader = csv.reader(file)
-      next(reader)
-      for row in reader: 
-         insert_community_area(row)
-         # break
+   # with open("api/utils/data/community_areas.csv", "r") as file: 
+   #    reader = csv.reader(file)
+   #    next(reader)
+   #    for row in reader: 
+   #       insert_community_area(row)
 
 def process_crime_rates():
    with tempfile.NamedTemporaryFile(mode="w", delete=False, newline='') as tmp_file:
