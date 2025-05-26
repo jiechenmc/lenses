@@ -7,6 +7,10 @@ import psycopg2
 import os
 import time
 import requests
+import pandas as pd
+from shapely.wkt import loads as load_wkt
+from geoalchemy2.shape import from_shape
+
 
 def get_row_count(conn, table_name):
     with conn.cursor() as cur:
@@ -23,11 +27,35 @@ def process_community_area():
       for point in data:
          community_area = point['community_area']
          total_pop_data[community_area] = {k: v for k, v in point.items() if k != "community_area"}
-   with open("api/utils/data/community_areas.csv", "r") as file: 
-      reader = csv.reader(file)
-      next(reader)
-      for row in reader: 
-         insert_community_area(row, total_pop_data)
+   # with open("api/utils/data/community_areas.csv", "r") as file: 
+   #    reader = csv.reader(file)
+   #    next(reader)
+   #    for row in reader: 
+   #       insert_community_area(row, total_pop_data)
+   community_areas=pd.read_csv("api/utils/data/community_areas.csv")
+   community_areas['total_population']=0
+   # print(community_areas.head())
+   for index, row in community_areas.iterrows():
+      # print(total_pop_data[row["COMMUNITY"]])
+      community_areas.at[index, "total_population"] = int(float(total_pop_data[row["COMMUNITY"]]["total_population"]))
+   
+   merged_data = compute_crime_per_capita(community_areas)
+   for index, row in merged_data.iterrows():
+      row = [
+         row["the_geom"],
+         row["AREA_NUMBE"],
+         row["COMMUNITY"],
+         row["SHAPE_AREA"],
+         row["SHAPE_LEN"],
+         row["total_population"],
+         row["total_crimes"],
+         row["crime_rate"],
+         row["crime_percentile"]
+      ]
+      insert_community_area(row)
+      
+   print(community_areas.head())
+   return community_areas
 
 def process_crime_rates():
    with tempfile.NamedTemporaryFile(mode="w", delete=False, newline='') as tmp_file:
@@ -43,6 +71,7 @@ def process_crime_rates():
              "x_coordinate", "y_coordinate", "year", "updated_on",
              "latitude", "longitude", "location"
          ])
+         
          for row in reader:
             cleaned_row = [
                 parse_int(row[0]),
@@ -98,10 +127,43 @@ def process_crime_rates():
          # for row in reader: 
          #    insert_crime(row)
             # break
+def compute_crime_per_capita(community_areas):
+   crimes = pd.read_csv("api/utils/data/crime_rates.csv")
+   print(crimes.head())
+   # Drop rows without a community area
+   crimes = crimes[crimes['Community Area'].notna()]
+   crimes['Community Area'] = crimes['Community Area'].astype(int)
 
-def insert_community_area(data: list, total_pop_data: dict):
+   # Group by community area
+   crime_counts = (
+      crimes.groupby('Community Area')
+      .size()
+      .reset_index(name="total_crimes")
+   )
+
+   # Merge with community areas table with the total population information
+   crime_counts = crime_counts.rename(columns={"Community Area": "AREA_NUMBE"})
+   merged = crime_counts.merge(community_areas, on="AREA_NUMBE")
+   # Calculate Crime Rate per 100000
+   merged["crime_rate"] = merged["total_crimes"] / merged["total_population"] * 100000
+   # The lower the percentile, the safer the neighborhood is compared to its peers
+   merged["crime_percentile"] = merged["crime_rate"].rank(pct=True)
+   print(merged.head())   
+   return merged
+
+def insert_community_area(data: list):
    # the_geom,AREA_NUMBE,COMMUNITY,AREA_NUM_1,SHAPE_AREA,SHAPE_LEN
-   community_area = CommunityAreas(area_id=int(data[1]), name=data[2], total_population=int(float(total_pop_data[data[2]]['total_population'])))
+   community_area = CommunityAreas(
+      area_id=int(data[1]), 
+      the_geom=from_shape(load_wkt(data[0]), srid=4326),
+      name=data[2], 
+      shape_area=int(data[3]),
+      shape_len=float(data[4]),
+      total_population=data[5],
+      total_crimes=data[6],
+      crime_rate=data[7],
+      crime_percentile=data[8]
+      )
    with get_session() as session:
       session.add(community_area)
       session.commit()
@@ -142,5 +204,5 @@ def insert_crime(data: list):
        print(f"Inserted Crime ID: {crime.id}")
    pass
 create_db_and_tables()
-process_community_area()
+# process_community_area()
 process_crime_rates()

@@ -1,13 +1,23 @@
 from sqlmodel import SQLModel, Field, Relationship
 from typing import List, Optional
 from datetime import datetime
+from geoalchemy2 import Geometry
+from sqlalchemy import Column
 # Community Areas SQL Model
 
 class CommunityAreas(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    the_geom: Optional[object] = Field(
+        sa_column=Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326))
+    )
     area_id: Optional[int] = Field(default=None, index=True, unique=True)
     name: str = Field(index=True)
+    shape_area: Optional[int] = Field(default=None)
+    shape_len: Optional[float] = Field(default=None)
     total_population: Optional[int] = Field(default=None)
+    total_crimes: Optional[int] = Field(default=None)
+    crime_rate: Optional[float] = Field(default=None)
+    crime_percentile: Optional[float] = Field(default=None)
     # Back-reference to related crime records
     crimes: List["CrimeRates"] = Relationship(back_populates="community")
 
