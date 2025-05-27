@@ -10,7 +10,42 @@ import requests
 import pandas as pd
 from shapely.wkt import loads as load_wkt
 from geoalchemy2.shape import from_shape
-
+# List of violent crimes
+VIOLENT_CRIMES = {
+    "ARSON", 
+    "ASSAULT", 
+    "BATTERY", 
+    "CRIMINAL SEXUAL ASSAULT", 
+    "CRIMINAL TRESPASS", 
+    "HOMICIDE", 
+    "HUMAN TRAFFICKING", 
+    "INTIMIDATION", 
+    "KIDNAPPING", 
+    "MOTOR VEHICLE THEFT", 
+    "ROBBERY", 
+    "SEX OFFENSE", 
+    "STALKING", 
+    "THEFT", 
+    "WEAPONS VIOLATION"
+}
+ 
+# List of non-violent crimes
+NON_VIOLENT_CRIMES = {
+    "CONCEALED CARRY LICENSE VIOLATION", 
+    "DECEPTIVE PRACTICE", 
+    "GAMBLING", 
+    "LIQUOR LAW VIOLATION", 
+    "NARCOTICS", 
+    "NON-CRIMINAL", 
+    "OBSCENITY", 
+    "OFFENSE INVOLVING CHILDREN", 
+    "OTHER NARCOTIC VIOLATION", 
+    "OTHER OFFENSE", 
+    "PROSTITUTION", 
+    "PUBLIC INDECENCY", 
+    "PUBLIC PEACE VIOLATION", 
+    "RITUALISM"
+}
 
 def get_row_count(conn, table_name):
     with conn.cursor() as cur:
@@ -20,6 +55,7 @@ def get_row_count(conn, table_name):
 # Processes the community area CSV and crime rates CSV
 def process_community_area(): 
    print(os.getcwd())
+   # Load data with total population per community area
    response = requests.get("https://data.cityofchicago.org/resource/t68z-cikk.json")
    if response.status_code==200: 
       data = response.json()
@@ -27,11 +63,6 @@ def process_community_area():
       for point in data:
          community_area = point['community_area']
          total_pop_data[community_area] = {k: v for k, v in point.items() if k != "community_area"}
-   # with open("api/utils/data/community_areas.csv", "r") as file: 
-   #    reader = csv.reader(file)
-   #    next(reader)
-   #    for row in reader: 
-   #       insert_community_area(row, total_pop_data)
    community_areas=pd.read_csv("api/utils/data/community_areas.csv")
    community_areas['total_population']=0
    # print(community_areas.head())
@@ -157,8 +188,8 @@ def insert_community_area(data: list):
       area_id=int(data[1]), 
       the_geom=from_shape(load_wkt(data[0]), srid=4326),
       name=data[2], 
-      shape_area=int(data[3]),
-      shape_len=float(data[4]),
+      # shape_area=int(data[3]),
+      # shape_len=float(data[4]),
       total_population=data[5],
       total_crimes=data[6],
       crime_rate=data[7],
@@ -176,16 +207,16 @@ def insert_crime(data: list):
       crime_id=parse_int(data[0]),
       case_number=data[1] or None, 
       date=parse_datetime(data[2]),
-      block=data[3] or None,
+      # block=data[3] or None,
       iucr=data[4] or None,
       primary_type=data[5] or None,
-      description=data[6] or None,
-      location_description=data[7] or None,
+      # description=data[6] or None,
+      # location_description=data[7] or None,
       arrest=parse_bool(data[8]),
       domestic=parse_bool(data[9]),
-      beat=parse_int(data[10]),
-      district=parse_int(data[11]),
-      ward=parse_int(data[12]),
+      # beat=parse_int(data[10]),
+      # district=parse_int(data[11]),
+      # ward=parse_int(data[12]),
       community_area=parse_int(data[13]),
       fbi_code=data[14] or None,
       x_coordinate=parse_float(data[15]),
@@ -193,8 +224,8 @@ def insert_crime(data: list):
       year=parse_int(data[17]),
       latitude=parse_float(data[19]),
       longitude=parse_float(data[20]),
-      location=data[21] or None,
-      updated_on=parse_datetime(data[18])
+      # location=data[21] or None,
+      # updated_on=parse_datetime(data[18])
    )
 
    with get_session() as session:

@@ -40,6 +40,7 @@ dependencies = [
     { name = "exceptiongroup" },
     { name = "fastapi" },
     { name = "geoalchemy2" },
+    { name = "geopy" },
     { name = "greenlet" },
     { name = "idna" },
     { name = "pandas" },
@@ -64,6 +65,7 @@ requires-dist = [
     { name = "exceptiongroup", specifier = "==1.3.0" },
     { name = "fastapi", specifier = "==0.115.12" },
     { name = "geoalchemy2", specifier = ">=0.17.1" },
+    { name = "geopy", specifier = ">=2.4.1" },
     { name = "greenlet", specifier = "==3.2.2" },
     { name = "idna", specifier = "==3.10" },
     { name = "pandas", specifier = ">=2.2.3" },
@@ -185,6 +187,27 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/46/52/60214c086a57a7e3ea82241bab94e09827f2b7f7c2084fe6fc280c099b23/geoalchemy2-0.17.1.tar.gz", hash = "sha256:ff5bbe0db5a4ff979f321c8aa1a7556f444ea30cda5146189b1a177ae5bec69d", size = 231566, upload-time = "2025-02-17T09:41:04.72Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f5/82/e83e0f74cba8bbff9c12b2dea4693adb0cf89204012da48433ebd8e8c4d8/GeoAlchemy2-0.17.1-py3-none-any.whl", hash = "sha256:29f41b67d3a52df47821b695d31dec8600747c6ef4de62ee69811bde481dd2ae", size = 77791, upload-time = "2025-02-17T09:41:02.7Z" },
+]
+
+[[package]]
+name = "geographiclib"
+version = "2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/96/cd/90271fd195d79a9c2af0ca21632b297a6cc3e852e0413a2e4519e67be213/geographiclib-2.0.tar.gz", hash = "sha256:f7f41c85dc3e1c2d3d935ec86660dc3b2c848c83e17f9a9e51ba9d5146a15859", size = 36720, upload-time = "2022-04-23T13:01:11.495Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9f/5a/a26132406f1f40cf51ea349a5f11b0a46cec02a2031ff82e391c2537247a/geographiclib-2.0-py3-none-any.whl", hash = "sha256:6b7225248e45ff7edcee32becc4e0a1504c606ac5ee163a5656d482e0cd38734", size = 40324, upload-time = "2022-04-23T13:01:09.958Z" },
+]
+
+[[package]]
+name = "geopy"
+version = "2.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "geographiclib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0e/fd/ef6d53875ceab72c1fad22dbed5ec1ad04eb378c2251a6a8024bad890c3b/geopy-2.4.1.tar.gz", hash = "sha256:50283d8e7ad07d89be5cb027338c6365a32044df3ae2556ad3f52f4840b3d0d1", size = 117625, upload-time = "2023-11-23T21:49:32.734Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e5/15/cf2a69ade4b194aa524ac75112d5caac37414b20a3a03e6865dfe0bd1539/geopy-2.4.1-py3-none-any.whl", hash = "sha256:ae8b4bc5c1131820f4d75fce9d4aaaca0c85189b3aa5d64c3dcaf5e3b7b882a7", size = 125437, upload-time = "2023-11-23T21:49:30.421Z" },
 ]
 
 [[package]]
