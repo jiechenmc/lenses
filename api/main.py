@@ -26,9 +26,22 @@ async def get_safety_score(address: str):
         "safety_score": safety_score
     }
 
-@app.get("/api/get_commute")
-async def get_commute():
-    return {"message": "Commute Route"}
+@app.get("/api/get_commute/")
+async def get_commute(origin:str, destination:str, mode:str="drive"):
+    modes = ["drive", "walk", "bicycle", "transit"]
+    if mode not in modes:
+        raise HTTPException(status_code=400, detail="Invalid mode of transportation. Choose from: drive, walk, bicycle, transit.")
+    # Calculate commute time and distance
+    commute_info = Insights.get_commute(origin, destination, mode)
+    if not commute_info:
+        raise HTTPException(status_code=500, detail="Failed to compute commute information.")
+    return {
+        "origin": origin,
+        "destination": destination,
+        "mode": mode,
+        "distance_meters": commute_info["distanceMeters"],
+        "duration": commute_info["duration"]
+    }
 
 @app.get("/api/get_schools")
 async def get_schools():

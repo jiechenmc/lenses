@@ -90,8 +90,30 @@ class Insights:
                 print(f"Location {location} is in {result}")
         return result
     
-    def get_commute(self): 
-        pass
+    def get_commute(origin: str, destination: str, mode: str):
+        headers = {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": google_api_key,
+            "X-Goog-FieldMask": "routes.distanceMeters,routes.duration"
+        }
+        body = {
+            "origin": {
+                "address": origin
+            }, 
+            "destination": {
+                "address": destination
+            },
+            "travelMode": mode.upper()
+        }
+        print(f"BODY: {body}")
+        response = requests.post("https://routes.googleapis.com/directions/v2:computeRoutes", headers=headers, json=body)
+        if response.status_code != 200:
+            return None
+        data = response.json()
+        print(f"TEST: {data}")
+        if "routes" not in data or len(data["routes"]) == 0:
+            return None
+        return data["routes"][0]
     def get_schools(self):
         pass
     def get_convenient_stores(self): 
@@ -107,4 +129,5 @@ class Insights:
         }
     
 # insights = Insights("")
-Insights.get_community_area("1715 S Ruble St, Chicago, IL 60616")
+# Insights.get_community_area("1715 S Ruble St, Chicago, IL 60616")
+# Insights.get_commute("1715 S Ruble St, Chicago, IL 60616", "1000 W 35th St, Chicago, IL 60609", "drive")
