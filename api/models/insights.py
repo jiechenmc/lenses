@@ -1,19 +1,41 @@
-from ..utils.db_config import get_session
-from ..models.db_models import CrimeRates, CommunityAreas
+from utils.db_config import get_session
+from models.db_models import CrimeRates, CommunityAreas
 from collections import defaultdict
 from sqlalchemy import text
 from geopy.geocoders import Nominatim
 from geoalchemy2.shape import to_shape
-
-
+from dotenv import load_dotenv
+import os
 import requests
 import time
+from urllib.parse import quote_plus
 
+# Load environment variables from .env file
+load_dotenv()
+
+google_api_key = os.getenv("GOOGLE_API_KEY")
 def geocode_address(address:str):
-    """Use Nominatim to geocode the address."""
-    geolocator = Nominatim(user_agent="chicago_mapper")
-    location = geolocator.geocode(address)
-    print(f"LOCATION: {location}, Longitude: {location.longitude}, Latitude: {location.latitude}")
+    # """Use Nominatim to geocode the address."""
+    # geolocator = Nominatim(user_agent="chicago_mapper")
+    # location = geolocator.geocode(address)
+    """Calls the Google Geocoding API to get the latitude and longitude of an address.
+
+    Args:
+        address (str): Specified address to geocode.
+
+    Returns:
+        _type_: _description_
+    """
+    # Urlify the address for API request
+    urlify_address = quote_plus(address)
+    response = requests.get(f"https://maps.googleapis.com/maps/api/geocode/json?address={urlify_address}&key={google_api_key}")
+    if response.status_code != 200: 
+        return None
+    data = response.json()
+    if not data or "results" not in data or len(data["results"]) == 0: 
+        return None
+    location = data['results'][0]['geometry']['location']
+    print(f"LOCATION: {location}, Longitude: {location['lng']}, Latitude: {location['lat']}")
     return location
 # Temporary Location for this function - might be relocated later
 def get_geojson(community_area): 
@@ -52,7 +74,7 @@ class Insights:
     
     def get_community_area(addr:str): 
         location = geocode_address(addr)
-        print(f"Longitude: {location.longitude}, Latitude: {location.latitude}")
+        print(f"Longitude: {location['lng']}, Latitude: {location['lat']}")
         query = text("""
         SELECT name, area_id
         FROM communityareas
@@ -63,7 +85,7 @@ class Insights:
         LIMIT 1;
         """)
         with get_session() as session:
-            result = session.exec(query.bindparams(lon = location.longitude, lat = location.latitude)).first()
+            result = session.exec(query.bindparams(lon = location["lng"], lat = location["lat"])).first()
             if result:
                 print(f"Location {location} is in {result}")
         return result

@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from models.insights import Insights
 
 app = FastAPI()
 
@@ -13,9 +14,17 @@ async def get_insight():
     return {"message": "Hello World"}
 
 # Given an address, compute the safety score
-@app.get("/api/get_safety_score")
-async def get_safety_score():
-    return {"message": "Safety Score Route"}
+@app.get("/api/get_safety_score/")
+async def get_safety_score(address: str):
+    community, community_id = Insights.get_community_area(address)
+    if not community_id:
+        raise HTTPException(status_code=404, detail="Invalid address or community area not found.")
+    safety_score = Insights.get_crime_percentile(community_id)
+    return {
+        "address": address,
+        "community_area": community,
+        "safety_score": safety_score
+    }
 
 @app.get("/api/get_commute")
 async def get_commute():
