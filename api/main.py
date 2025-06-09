@@ -28,6 +28,7 @@ async def get_safety_score(address: str):
 
 @app.get("/api/get_commute/")
 async def get_commute(origin:str, destination:str, mode:str="drive"):
+    print(f"Origin: {origin}, Destination: {destination}")
     modes = ["drive", "walk", "bicycle", "transit"]
     if mode not in modes:
         raise HTTPException(status_code=400, detail="Invalid mode of transportation. Choose from: drive, walk, bicycle, transit.")
