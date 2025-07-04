@@ -1,35 +1,47 @@
-const address_node = document.querySelector("address");
+function getAddressNode() {
+  return document.querySelector("address");
+}
 
-const origin = encodeURI(address_node.textContent);
-const dest = encodeURI("600 W Chicago Ave, Chicago");
-const api = `https://lenses.jiechen.dev/api/get_commute?origin=${origin}&destination=${dest}&mode=transit`;
+function fetchAndInject() {
+  const address_node = getAddressNode();
+  console.log(address_node);
+  if (!address_node) return;
 
-let latestCommuteTime = null;
+  const origin = encodeURI(address_node.textContent.trim());
+  const dest = encodeURI("600 W Chicago Ave, Chicago");
+  const api = `https://lenses.jiechen.dev/api/get_commute?origin=${origin}&destination=${dest}&mode=transit`;
 
-fetch(api).then((r) =>
-  r.json().then((d) => {
-    latestCommuteTime = parseInt(parseInt(d["duration"].slice(0, -1)) / 60);
-    injectHi(address_node, latestCommuteTime);
-  })
-);
+  fetch(api)
+    .then((r) => r.json())
+    .then((d) => {
+      const latestCommuteTime = Math.floor(parseInt(d["duration"], 10) / 60);
+      injectHi(address_node, latestCommuteTime);
+    });
+}
 
 function injectHi(address_node, time) {
   const id = "chrome-ext-hi";
-  if (!document.getElementById(id)) {
-    const span = document.createElement("div");
-    span.textContent = `${time} Minutes`;
+  let span = document.getElementById(id);
+  if (!span) {
+    span = document.createElement("div");
     span.id = id;
     address_node.parentNode.insertAdjacentElement("afterend", span);
   }
+  span.textContent = `${time} Minutes`;
 }
 
-// Watch for React wiping it out
+// Initial fetch
+fetchAndInject();
+
+// Watch for React wiping it out or address changing
 const observer = new MutationObserver(() => {
-  if (!document.getElementById("chrome-ext-hi") && latestCommuteTime !== null) {
-    injectHi(address_node, latestCommuteTime);
-  }
+  fetchAndInject();
 });
 
-observer.observe(address_node.parentNode, {
-  childList: true,
-});
+const address_node = getAddressNode();
+if (address_node && address_node.parentNode) {
+  observer.observe(address_node.parentNode, {
+    childList: true,
+    subtree: true,
+  });
+}
