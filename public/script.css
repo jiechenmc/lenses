@@ -1,0 +1,21 @@
+.badge {
+  background-color: oklch(0.2326 0.014 253.1);
+  color: oklch(0.97807 0.029 256.847);
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.success {
+  background-color: oklch(0.76 0.177 163.223);
+  color: oklch(0.37 0.077 168.94);
+}
+
+.warning {
+  background-color: oklch(0.82 0.189 84.429);
+  color: oklch(0.41 0.112 45.904);
+}
+
+.error {
+  background-color: oklch(0.71 0.194 13.428);
+  color: oklch(0.27 0.105 12.094);
+}

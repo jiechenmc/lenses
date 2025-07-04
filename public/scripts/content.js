@@ -1,47 +1,76 @@
-function getAddressNode() {
-  return document.querySelector("address");
-}
+const fetchCommuteDuration = (srcAddr) => {
+  const destAddr = "600 W Chicago Ave #600, Chicago, IL 60654";
+  return Math.floor(Math.random() * 100) + 1;
+};
 
-function fetchAndInject() {
-  const address_node = getAddressNode();
-  console.log(address_node);
-  if (!address_node) return;
+const fetchCrimeScore = (srcAddr) => {
+  return Math.floor(Math.random() * 100) + 1;
+};
 
-  const origin = encodeURI(address_node.textContent.trim());
-  const dest = encodeURI("600 W Chicago Ave, Chicago");
-  const api = `https://lenses.jiechen.dev/api/get_commute?origin=${origin}&destination=${dest}&mode=transit`;
+const createBadge = (type, data) => {
+  const crimeThresh = { low: 0, medium: 10, high: 30 };
+  const commuteThresh = { low: 0, medium: 30, high: 60 };
 
-  fetch(api)
-    .then((r) => r.json())
-    .then((d) => {
-      const latestCommuteTime = Math.floor(parseInt(d["duration"], 10) / 60);
-      injectHi(address_node, latestCommuteTime);
-    });
-}
+  const element = document.createElement("div");
 
-function injectHi(address_node, time) {
-  const id = "chrome-ext-hi";
-  let span = document.getElementById(id);
-  if (!span) {
-    span = document.createElement("div");
-    span.id = id;
-    address_node.parentNode.insertAdjacentElement("afterend", span);
+  switch (type) {
+    case "crime":
+      element.innerText = `👮 ${data}`;
+      if (data > crimeThresh["high"]) element.className = "badge error";
+      else if (data > crimeThresh["medium"])
+        element.className = "badge warning";
+      else element.className = "badge success";
+      break;
+    case "commute":
+      element.innerText = `🚗 ${data}`;
+      if (data > commuteThresh["high"]) element.className = "badge error";
+      else if (data > commuteThresh["medium"])
+        element.className = "badge warning";
+      else element.className = "badge success";
+      break;
   }
-  span.textContent = `${time} Minutes`;
-}
 
-// Initial fetch
-fetchAndInject();
+  return element;
+};
 
-// Watch for React wiping it out or address changing
-const observer = new MutationObserver(() => {
-  fetchAndInject();
-});
+const addBadgeToAddresses = () => {
+  const addresses = document.querySelectorAll("address");
 
-const address_node = getAddressNode();
-if (address_node && address_node.parentNode) {
-  observer.observe(address_node.parentNode, {
+  for (const address of addresses) {
+    const fakeData = {
+      crime_rate: fetchCrimeScore(address),
+      commute: fetchCommuteDuration(address),
+      schools: [],
+      convenient_stores: [],
+    };
+
+    if (!address.parentElement.parentElement.querySelector(".badge")) {
+      const crime = createBadge("crime", `${fakeData["crime_rate"]}`);
+      const commute = createBadge("commute", fakeData["commute"]);
+
+      const container = document.createElement("div");
+
+      container.appendChild(crime);
+      container.appendChild(commute);
+
+      address.parentElement.parentElement.insertAdjacentElement(
+        "beforeend",
+        container
+      );
+    }
+  }
+};
+
+const observer = new MutationObserver((mutations, obs) => {
+  observer.disconnect();
+  addBadgeToAddresses();
+  observer.observe(document.body, {
     childList: true,
     subtree: true,
   });
-}
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});

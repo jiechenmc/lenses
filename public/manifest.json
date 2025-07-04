@@ -1,7 +1,7 @@
 {
-  "name": "Hello Extensions",
-  "description": "Base Level Extension",
-  "version": "1.0",
+  "name": "Lenses",
+  "description": "Insights for Home Buyers in a New City",
+  "version": "0.0.1",
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html"
@@ -12,8 +12,10 @@
   },
   "content_scripts": [
     {
+      "css": ["script.css"],
       "js": ["scripts/content.js"],
-      "matches": ["https://*/*"]
+      "matches": ["https://www.zillow.com/*"],
+      "run_at": "document_idle"
     }
   ]
 }
