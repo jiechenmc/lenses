@@ -35,7 +35,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World Latest"}
 
 
 @app.get("/api/get_insight")
