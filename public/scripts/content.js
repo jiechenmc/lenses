@@ -8,7 +8,7 @@ let latestCommuteTime = null;
 
 fetch(api).then((r) =>
   r.json().then((d) => {
-    latestCommuteTime = d;
+    latestCommuteTime = parseInt(parseInt(d["duration"].slice(0, -1)) / 60);
     injectHi(address_node, latestCommuteTime);
   })
 );
