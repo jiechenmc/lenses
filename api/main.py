@@ -60,7 +60,7 @@ async def get_safety_score(address: str):
     }
 
 
-@app.get("/api/get_commute/")
+@app.get("/api/get_commute")
 async def get_commute(origin: str, destination: str, mode: str = "drive"):
     print(f"Origin: {origin}, Destination: {destination}")
     modes = ["drive", "walk", "bicycle", "transit"]
