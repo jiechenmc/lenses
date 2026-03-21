@@ -29,7 +29,7 @@ func main() {
 	)
 
 	// Query all rows
-	rows, err := db.Query(`SELECT id, date FROM crime`)
+	rows, err := db.Query(`DESCRIBE crime`)
 	if err != nil {
 		log.Fatal(err)
 	}
